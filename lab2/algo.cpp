@@ -236,7 +236,7 @@ void drawPieChart() {
 // ============= DISPLAY FUNCTION =============
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    glPointSize(3.0);
+    glPointSize(4.0);
     
     switch(currentAlgorithm) {
         case 1: { // DDA Line
