@@ -15,14 +15,31 @@ std::string floatToString(float value) {
 }
 
 void init() {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glShadeModel(GL_SMOOTH);
     
-    GLfloat lightPos[] = {5.0f, 5.0f, 5.0f, 1.0f};
+    // Set up lighting
+    GLfloat lightPos[] = {5.0f, 5.0f, 10.0f, 1.0f};
+    GLfloat lightAmbient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat lightDiffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+    
+    GLfloat matSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+    GLfloat matShininess[] = {50.0f};
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, matShininess);
 }
 
 void drawGrid() {
@@ -117,29 +134,15 @@ void displayMain() {
     
     // Draw original pyramid (Green)
     glPushMatrix();
-    glTranslatef(-3.0f, 0.0f, 0.0f);
+    glTranslatef(-2.0f, 0.0f, 0.0f);
     drawPyramid(1.0f, 0.0f, 1.0f, 0.0f);
     glPopMatrix();
     
-    // Draw uniformly scaled pyramid (Red)
+    // Draw scaled pyramid (Red)
     glPushMatrix();
-    glTranslatef(0.0f, 2.0f, 0.0f);
+    glTranslatef(2.0f, 0.0f, 0.0f);
     glScalef(1.5f, 1.5f, 1.5f);
     drawPyramid(1.0f, 1.0f, 0.0f, 0.0f);
-    glPopMatrix();
-    
-    // Draw non-uniformly scaled pyramid (Blue)
-    glPushMatrix();
-    glTranslatef(3.0f, 0.0f, 0.0f);
-    glScalef(0.8f, 1.8f, 1.2f);
-    drawPyramid(1.0f, 0.0f, 0.0f, 1.0f);
-    glPopMatrix();
-    
-    // Draw reduced pyramid (Yellow)
-    glPushMatrix();
-    glTranslatef(0.0f, -2.0f, 0.0f);
-    glScalef(0.6f, 0.6f, 0.6f);
-    drawPyramid(1.0f, 1.0f, 1.0f, 0.0f);
     glPopMatrix();
     
     // Draw labels
@@ -152,19 +155,7 @@ void displayMain() {
     }
     
     glRasterPos3f(0.0f, 3.5f, 0.0f);
-    label = "Uniform Scale 1.5x";
-    for (char c : label) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    glRasterPos3f(3.0f, 1.5f, 0.0f);
-    label = "Non-uniform Scale";
-    for (char c : label) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    glRasterPos3f(0.0f, -0.5f, 0.0f);
-    label = "Reduction 0.6x";
+    label = "Scaled 1.5x";
     for (char c : label) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
     }
@@ -216,79 +207,61 @@ void displayInfo() {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
+    glRasterPos2f(70, 260);
+    std::string v4 = "V4 (Back-right): (0.5, -0.5, -0.5)";
+    for (char c : v4) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+    }
+    
+    glRasterPos2f(70, 240);
+    std::string v5 = "V5 (Back-left): (-0.5, -0.5, -0.5)";
+    for (char c : v5) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+    }
+    
     // Uniform Scaling
     glColor3f(1.0f, 0.0f, 0.0f);
-    glRasterPos2f(50, 250);
-    std::string uniScale = "UNIFORM SCALING (Red):";
+    glRasterPos2f(50, 200);
+    std::string uniScale = "SCALED PYRAMID (Red):";
     for (char c : uniScale) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
     glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2f(70, 230);
+    glRasterPos2f(70, 180);
     std::string uniInfo = "Scale Factors: Sx = 1.5, Sy = 1.5, Sz = 1.5";
     for (char c : uniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
-    glRasterPos2f(70, 210);
+    glRasterPos2f(70, 150);
     uniInfo = "Transformed V1: (0.0, 0.75, 0.0)";
     for (char c : uniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
-    glRasterPos2f(70, 190);
+    glRasterPos2f(70, 130);
     uniInfo = "Transformed V2: (-0.75, -0.75, 0.75)";
     for (char c : uniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    // Non-uniform Scaling
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glRasterPos2f(50, 160);
-    std::string nonUniScale = "NON-UNIFORM SCALING (Blue):";
-    for (char c : nonUniScale) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2f(70, 140);
-    std::string nonUniInfo = "Scale Factors: Sx = 0.8, Sy = 1.8, Sz = 1.2";
-    for (char c : nonUniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    glRasterPos2f(70, 120);
-    nonUniInfo = "Transformed V1: (0.0, 0.9, 0.0)";
-    for (char c : nonUniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    glRasterPos2f(70, 100);
-    nonUniInfo = "Transformed V2: (-0.4, -0.9, 0.6)";
-    for (char c : nonUniInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
-    }
-    
-    // Reduction Scaling
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glRasterPos2f(50, 70);
-    std::string redScale = "REDUCTION SCALING (Yellow):";
-    for (char c : redScale) {
+    glRasterPos2f(70, 110);
+    uniInfo = "Transformed V3: (0.75, -0.75, 0.75)";
+    for (char c : uniInfo) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glRasterPos2f(70, 50);
-    std::string redInfo = "Scale Factors: Sx = 0.6, Sy = 0.6, Sz = 0.6";
-    for (char c : redInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
+    glRasterPos2f(70, 90);
+    uniInfo = "Transformed V4: (0.75, -0.75, -0.75)";
+    for (char c : uniInfo) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
-    glRasterPos2f(70, 30);
-    redInfo = "Transformed V1: (0.0, 0.3, 0.0)";
-    for (char c : redInfo) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, c);
+    glRasterPos2f(70, 70);
+    uniInfo = "Transformed V5: (-0.75, -0.75, -0.75)";
+    for (char c : uniInfo) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
     }
     
     glutSwapBuffers();
@@ -352,10 +325,7 @@ int main(int argc, char** argv) {
     std::cout << "=======================\n";
     std::cout << "Press 'I' to show/hide coordinates window\n";
     std::cout << "Press ESC to exit\n\n";
-    std::cout << "Scaling Details:\n";
-    std::cout << "Uniform scaling: 1.5x all axes\n";
-    std::cout << "Non-uniform scaling: X:0.8, Y:1.8, Z:1.2\n";
-    std::cout << "Reduction scaling: 0.6x all axes\n";
+    std::cout << "Scaling: 1.5x uniform scaling on all axes\n";
     
     glutMainLoop();
     return 0;

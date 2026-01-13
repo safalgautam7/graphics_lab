@@ -17,14 +17,40 @@ std::string floatToString(float value) {
 }
 
 void init() {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glShadeModel(GL_SMOOTH);
+    
+    // Set up lighting
+    GLfloat lightPos[] = {5.0f, 5.0f, 10.0f, 1.0f};
+    GLfloat lightAmbient[] = {0.3f, 0.3f, 0.3f, 1.0f};
+    GLfloat lightDiffuse[] = {0.8f, 0.8f, 0.8f, 1.0f};
+    GLfloat lightSpecular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+    
+    GLfloat matSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+    GLfloat matShininess[] = {50.0f};
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, matShininess);
 }
 
 void drawGrid() {
-    glColor3f(0.3f, 0.3f, 0.3f);
+    glDisable(GL_LIGHTING);
+    glLineWidth(1.0f);
     glBegin(GL_LINES);
     
+    // Draw major grid lines (darker)
+    glColor3f(0.2f, 0.2f, 0.3f);
     for(float x = -5.0f; x <= 5.0f; x += 1.0f) {
         glVertex3f(x, 0.0f, -5.0f);
         glVertex3f(x, 0.0f, 5.0f);
@@ -35,27 +61,41 @@ void drawGrid() {
         glVertex3f(5.0f, 0.0f, z);
     }
     
+    // Draw center lines (brighter)
+    glColor3f(0.4f, 0.4f, 0.5f);
+    glLineWidth(1.5f);
+    glVertex3f(0.0f, 0.0f, -5.0f);
+    glVertex3f(0.0f, 0.0f, 5.0f);
+    glVertex3f(-5.0f, 0.0f, 0.0f);
+    glVertex3f(5.0f, 0.0f, 0.0f);
+    
     glEnd();
+    glEnable(GL_LIGHTING);
 }
 
 void drawCoordinateAxes() {
-    glLineWidth(2.0f);
+    glDisable(GL_LIGHTING);
+    glLineWidth(3.0f);
     glBegin(GL_LINES);
     
-    glColor3f(1.0f, 0.0f, 0.0f);
+    // X-axis (Red)
+    glColor3f(1.0f, 0.2f, 0.2f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(3.0f, 0.0f, 0.0f);
     
-    glColor3f(0.0f, 1.0f, 0.0f);
+    // Y-axis (Green)
+    glColor3f(0.2f, 1.0f, 0.2f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 3.0f, 0.0f);
     
-    glColor3f(0.0f, 0.0f, 1.0f);
+    // Z-axis (Blue)
+    glColor3f(0.2f, 0.2f, 1.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 3.0f);
     
     glEnd();
     glLineWidth(1.0f);
+    glEnable(GL_LIGHTING);
 }
 
 void drawCube(float size, float r, float g, float b) {
@@ -120,7 +160,7 @@ void displayMain() {
     // Draw original cube (Green) at position (0,0,0)
     glPushMatrix();
     glTranslatef(-2.0f, 0.0f, 0.0f);
-    drawCube(1.0f, 0.0f, 1.0f, 0.0f);
+    drawCube(1.0f, 0.2f, 0.9f, 0.2f);
     
     // Draw coordinate point
     glColor3f(0.0f, 1.0f, 0.0f);
@@ -133,7 +173,7 @@ void displayMain() {
     // Draw translated cube (Red)
     glPushMatrix();
     glTranslatef(2.0f, 1.5f, -1.0f);
-    drawCube(1.0f, 1.0f, 0.0f, 0.0f);
+    drawCube(1.0f, 0.9f, 0.2f, 0.2f);
     
     // Draw coordinate point
     glColor3f(1.0f, 0.0f, 0.0f);
